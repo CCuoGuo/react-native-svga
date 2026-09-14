@@ -1,0 +1,11 @@
+[
+    {
+        "Name": "@react-native-ohos/react-native-svga",
+        "License": "MIT License",
+        "License File": " LICENSE ",
+        "Version Number": "1.0.9",
+        "Owner" : "xiafeng@huawei.com",
+        "Upstream URL": "https://gitcode.com/openharmony-sig/rntpc_react-native-svga",
+        "Description": "SVGA animation player library for React Native OpenHarmony."
+    }
+]
