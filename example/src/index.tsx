@@ -99,14 +99,11 @@ const App = () => {
 
   const openNative = (asset: number) => {
     const resolved = SVGAModule.getAssets(asset);
-    // dev 模式：http 地址直用；bundle 模式：metro 产物在 rawfile 下深达 3 层
-    // （assets/assets/svga/），超过 2 层的 rawfile 子路径系统读不到
-    // （getRawFileContent 失败，与目录名无关），故取裸文件名读 rawfile 根目录。
-    const uri = resolved.startsWith('http')
-      ? resolved
-      : resolved.split('/').pop() ?? resolved;
-    appendLog(`getAssets -> ${uri}`);
-    open(uri);
+    // dev 模式：http 地址直用（metro + hdc rport）；bundle 模式：asset:// 全路径
+    // 直传，原生按 RNOH 约定补 assets/ 前缀读 rawfile（metro 拷贝产物位于
+    // rawfile/assets/assets/svga/，此前只传裸文件名导致 rawfile 根目录找不到）。
+    appendLog(`getAssets -> ${resolved}`);
+    open(resolved);
   };
 
   /** 预加载全部（真实 advanceDownload） */

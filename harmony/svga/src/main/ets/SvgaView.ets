@@ -211,7 +211,7 @@ export struct SvgaView {
       .catch((e: Object) => {
         if (token === this.loadToken) {
           const err: BusinessError = e as BusinessError;
-          console.error(`[RNSVGA] load failed: ${err.message}`);
+          console.error(`[RNSVGA] load failed (${source}): ${err.message}`);
         }
       });
   }

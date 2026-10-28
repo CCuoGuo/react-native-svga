@@ -29,7 +29,7 @@
  *   resource://RAWFILE/xx → resourceManager rawfile
  *   file:// → 剥前缀 + decodeURIComponent 后读沙箱文件
  *   /data/... 绝对路径 → 读沙箱文件
- *   其它（资源名/相对路径）→ 依次尝试 rawfile → 沙箱 → rawfile(文件名)
+ *   其它（资源名/相对路径）→ 依次尝试 rawfile → rawfile(assets/ 前缀) → 沙箱 → rawfile(文件名)
  *
  * 容器格式两种：
  *   v1：zlib 流 + MovieEntity protobuf（yyued 官方样例全部为该格式）
@@ -98,10 +98,10 @@ export class SvgaLoader {
       return await SvgaLoader.readRawfile(source.substring('resource://RAWFILE/'.length), context);
     }
     if (source.startsWith('asset://')) {
-      // RNOH bundle 模式 resolveAssetSource 产物：asset://<rawfile 相对路径>。
-      // 仅剥 scheme 后落入下方相对路径兜底链：超过 2 层的 rawfile 子路径在
-      // 部分设备 getRawFileContent 读不到（实测与目录名无关），兜底链最终
-      // 还能按文件名读 rawfile 根目录（前提：资源在根目录有同名副本）。
+      // RNOH bundle 模式 resolveAssetSource 产物：asset://<相对 rawfile/assets/ 的路径>。
+      // AssetSourceResolver.harmony 会剥掉 httpServerLocation 首段 'assets/'，原生约定
+      // 由 getAssetsDest()='assets/' 前缀补回（参见 RNOH BlobTurboModule 的 asset://
+      // 解析）。剥 scheme 后落入下方相对路径兜底链（链内含 assets/ 前缀候选）。
       source = source.substring('asset://'.length);
     }
     if (source.startsWith('file://')) {
@@ -112,11 +112,15 @@ export class SvgaLoader {
     if (source.startsWith('/')) {
       return SvgaCache.readFile(source);
     }
-    // 资源名/相对路径：rawfile（原样）→ 沙箱 → rawfile(文件名)
-    try {
-      return await SvgaLoader.readRawfile(source, context);
-    } catch (e) {
-      // continue
+    // 资源名/相对路径：rawfile（原样）→ rawfile（assets/ 前缀，RNOH metro 资源
+    // 拷贝目录，asset:// 约定路径）→ 沙箱 → rawfile(文件名)
+    const rawfileCandidates: string[] = [source, `assets/${source}`];
+    for (const candidate of rawfileCandidates) {
+      try {
+        return await SvgaLoader.readRawfile(candidate, context);
+      } catch (e) {
+        // continue
+      }
     }
     try {
       return SvgaCache.readFile(source);

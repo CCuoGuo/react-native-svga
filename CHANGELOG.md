@@ -1,6 +1,6 @@
 # Changelog
 ## 鸿蒙化Log
-### 1.0.9-rc.1
+### 1.0.0-beta.1
 
 - feat: add OpenHarmony support for react-native-svga
 - feat: 自研 ArkTS SVGA 解析渲染引擎（zlib 解压 → protobuf/JSON 解析 → PixelMap 解码 → Canvas 逐帧矩阵绘制），无需引入 SVGAPlayer 原生库

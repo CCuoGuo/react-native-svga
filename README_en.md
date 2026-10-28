@@ -10,7 +10,7 @@ This third-party library has been migrated to Gitcode and is now available for d
 
 | Name | Version(Npm Address) | Release Information | Supported RN Version | Supported Autolink | Compile API Version | Community Baseline Version | Source code address |
 | ---- | -------------------- | ------------------- | -------------------- | ------------------ | ------------------- | -------------------------- | ------------------- |
-| @react-native-ohos/react-native-svga | [~1.0.9](https://www.npmjs.com/package/@react-native-ohos/react-native-svga) | [Gitcode Releases](https://gitcode.com/openharmony-sig/rntpc_react-native-svga/releases) | 0.77.* | Yes | API12+ | 1.0.9 | [br_rnoh0.77](https://gitcode.com/openharmony-sig/rntpc_react-native-svga/tree/br_rnoh0.77) |
+| @react-native-ohos/react-native-svga | [~1.0.0 (in development)](https://www.npmjs.com/package/@react-native-ohos/react-native-svga) | [Gitcode Releases](https://gitcode.com/openharmony-sig/rntpc_react-native-svga/releases) | 0.72.*/0.77.\*/0.82.\*/0.84.\* | Yes | API12+ | 1.0.9 | [master](https://github.com/react-native-oh-library/react-native-svga/tree/master) |
 
 ## Introduction
 
@@ -46,7 +46,7 @@ yarn add @react-native-ohos/react-native-svga
 
 |                        | Is supported autolink | Supported RN Version |
 | ---------------------- | --------------------- | -------------------- |
-| ~1.0.9                 | Yes                   | 0.77                 |
+| ~1.0.0-beta.1                 | Yes                   | 0.72.*/0.77.\*/0.82.\*/0.84.\*       |
 
 Projects using AutoLink need to be configured according to this document, AutoLink framework guide: https://gitcode.com/openharmony-sig/ohos_react_native/blob/master/docs/zh-cn/Autolinking.md
 
@@ -199,45 +199,94 @@ The following code shows the basic use scenario of the repository:
 
 ```tsx
 import React, {useRef} from 'react';
-import {Modal, View} from 'react-native';
-import {SVGAView, SVGAModule} from 'react-native-svga';
+import {Button, View} from 'react-native';
+import {SVGAView} from 'react-native-svga';
 
-// 1. Play a network / local SVGA animation
-const maskStyle = {flex: 1, backgroundColor: 'rgba(0,0,0,0.5)'};
-const playerStyle = {width: 300, height: 300};
-const Player = () => {
-  const svgaRef = useRef<SVGAView>(null);
+const App = () => {
+  const svgaRef = useRef(null);
   return (
-    <Modal transparent visible>
-      <View style={maskStyle}>
-        <SVGAView
-          ref={svgaRef}
-          source={'https://cdn.jsdelivr.net/gh/yyued/SVGA-Samples@master/heartbeat.svga'}
-          loops={1}
-          clearsAfterStop
-          style={playerStyle}
-          onFinished={() => console.log('finished')}
-          onFrame={frame => console.log('current frame', frame)}
-          onPercentage={p => console.log('progress', p)}
-        />
-      </View>
-    </Modal>
+    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+      <SVGAView
+        ref={svgaRef}
+        source={'https://cdn.jsdelivr.net/gh/yyued/SVGA-Samples@master/heartbeat.svga'}
+        loops={1}
+        clearsAfterStop
+        style={{width: 300, height: 300}}
+        onFinished={() => console.log('finished')}
+      />
+      <Button title="Replay" onPress={() => svgaRef.current?.startAnimation()} />
+    </View>
   );
 };
 
-// 2. Utilities: local asset resolution / cache query / batch pre-download
-const uri = SVGAModule.getAssets(require('./assets/angel.svga'));
-SVGAModule.isCached('https://example.com/gift.svga').then(cached => console.log(cached));
-SVGAModule.advanceDownload(['https://example.com/gift1.svga', 'https://example.com/gift2.svga']);
+export default App;
+```
 
-// 3. ref instance methods: playback control and seeking
-// svgaRef.current?.startAnimation();  play from the beginning
-// svgaRef.current?.pauseAnimation();  pause at the current frame
-// svgaRef.current?.stopAnimation();   stop (clearsAfterStop decides whether to clear the canvas)
-// svgaRef.current?.clearAnimation();  stop and clear the canvas
-// svgaRef.current?.stepToFrame(30, true);        seek to frame 30 and continue playing
-// svgaRef.current?.stepToPercentage(0.5, false); seek to 50% progress and pause
-// svgaRef.current?.load(newSource);   switch the data source
+## Usage
+
+**Playback Settings**
+```tsx
+<SVGAView
+  source={'https://example.com/gift.svga'} // network URL; for local packaged assets use SVGAModule.getAssets(require('./assets/angel.svga')); file:// sandbox paths are also supported
+  loops={0}               // loop count, 0 = infinite looping
+  clearsAfterStop={true}  // whether to clear the canvas after playback completes
+  style={{width: 300, height: 300}}
+/>
+```
+
+**Event Listening**
+```tsx
+<SVGAView
+  source={uri}
+  style={{width: 300, height: 300}}
+  onFinished={() => {
+    // called when the animation playback completes
+  }}
+  onFrame={frame => {
+    // called when a frame is reached (frame number as an integer)
+  }}
+  onPercentage={p => {
+    // real-time playback progress callback, 0~1
+  }}
+/>
+```
+
+**Playback Control**
+```tsx
+const svgaRef = useRef<SVGAView>(null);
+
+<SVGAView
+  ref={svgaRef}
+  source={uri}
+  style={{width: 300, height: 300}}
+/>
+
+// Play the animation from the beginning
+svgaRef.current?.startAnimation();
+// Pause at the current frame
+svgaRef.current?.pauseAnimation();
+// Stop playback (clearsAfterStop decides whether to clear the canvas)
+svgaRef.current?.stopAnimation();
+// Stop playback and clear the canvas
+svgaRef.current?.clearAnimation();
+// Seek to frame 30 and continue playing
+svgaRef.current?.stepToFrame(30, true);
+// Seek to 50% progress and dock
+svgaRef.current?.stepToPercentage(0.5, false);
+// Switch the data source
+svgaRef.current?.load(newSource);
+```
+
+**Utility Methods**
+```tsx
+import {SVGAModule} from 'react-native-svga';
+
+// Resolve a local packaged asset into a natively readable URI
+const uri = SVGAModule.getAssets(require('./assets/angel.svga'));
+// Query whether a network URL has been cached locally
+SVGAModule.isCached('https://example.com/gift.svga').then(cached => console.log(cached));
+// Batch pre-download network svga files (playable offline after pre-downloading)
+SVGAModule.advanceDownload(['https://example.com/gift1.svga', 'https://example.com/gift2.svga']);
 ```
 
 ## Available APIs
@@ -299,12 +348,6 @@ The following are the currently supported component properties on HarmonyOS:
 | isCached | function | url: string | Promise\<boolean\> | No | All | Yes | Query whether the URL has been cached locally (HarmonyOS has the same semantics as Android: a real local cache query; iOS always returns true, which is the original library's behavior) |
 | advanceDownload | function | urls: Array\<string\> | void | No | All | Yes | Batch pre-download network svga files to the cache directory (non-http(s) sources are silently skipped; failures are silent) |
 
-### Platform differences
-
-- Event channel form: HarmonyOS is consistent with iOS (three independent callback events: onFinished/onFrame/onPercentage); Android uses a single `topChange` event + `action` field dispatch (the JS layer has already handled the platform branch, so business code is unaware)
-- Scaling mode: HarmonyOS is consistent with the forked iOS, using AspectFill centered cropping; the upstream Android SVGAPlayer defaults to FIT_CENTER (this difference is an inherent difference among the three platforms of the original library, not introduced by the HarmonyOS adaptation)
-- The TurboModule is uniformly registered as `RNSVGAManager` (the JS layer explicitly obtains it in the `Platform.OS === 'harmony'` branch, unaffected by the module name inconsistency issue on the original library's Android side)
-
 ## Known Issues
 
 **Rendering capabilities**
@@ -319,27 +362,46 @@ The following are the currently supported component properties on HarmonyOS:
 
 ## Others
 
-None.
+### Playback Triggering (When It Plays Directly and When a State Switch Is Needed)
+
+**The following scenarios play automatically, without calling any playback method:**
+
+- `source` is set for the first time or switched to a new address (including `load(newSource)`): automatically plays from the beginning once loading completes;
+- `stepToFrame(x, true)` / `stepToPercentage(x, true)` (andPlay = true): continues playing directly after seeking.
+
+**Rules for `startAnimation()` (tapping "Play") to take effect:**
+
+`currentState` is edge-triggered (executed only when the value changes, consistent with the upstream iOS semantics):
+
+| Current state | Calling startAnimation() | Result |
+| ------------- | ------------------------ | ------ |
+| Never set (first time) | ✅ Takes effect | Plays from the beginning |
+| After pause | ✅ Takes effect | Plays from the beginning (not resuming) |
+| After stop / clear | ✅ Takes effect | Plays from the beginning |
+| Previous round started by `stepToXxx(x, true)` (state is play) | ✅ Takes effect | Plays from the beginning |
+| **After natural completion (loops ≥ 1 triggers onFinished, state remains start)** | ❌ No response | The same-value command is deduplicated; call any of `pauseAnimation()` / `stopAnimation()` / `clearAnimation()` first to switch the state, then `startAnimation()` to replay |
+
+> [!TIP] `loops = 0` infinite looping never stops naturally, so the "no response when tapping Play after completion" case above does not occur; `load()` with the same address does not replay either (source same-value deduplication — pass a different address to switch the data source).
 
 ## Directory Structure
 ```text
 /react-native-svga  # project root
 ├── src/                # JS-side source (index.tsx entry: SVGAView/SVGAModule; specs/v1 Codegen specs)
 ├── dist/               # JS build artifacts (commonjs / module / typescript)
-├── harmony/
+├── harmony/            # HarmonyOS platform adaptation layer (HAR source project and build artifact)
 │   ├── svga/           # HarmonyOS HAR source project (cpp Package registration + ets self-developed rendering engine svga/)
 │   └── svga.har        # HAR build artifact
 ├── example/            # demo test project (RN-side source + harmony OpenHarmony project + svga sample assets)
 ├── package.json        # npm package @react-native-ohos/react-native-svga descriptor
-├── babel.config.js
-├── tsconfig.json
-├── CHANGELOG.md
-├── COMMITTERS.md
-├── LICENSE
-├── OAT.xml
-├── README.OpenSource
-├── README.md
-└── README_en.md
+├── babel.config.js     # Babel compilation config (JS source transpilation rules)
+├── tsconfig.json       # TypeScript compilation config (type checking and declaration output)
+├── CHANGELOG.md        # version change log
+├── COMMITTERS.md       # contributor list (committers)
+├── LICENSE             # open source license (MIT)
+├── OAT.xml             # OAT open source compliance scan config (review rules)
+├── README.OpenSource   # upstream library introduction (original repo / version / modifications)
+├── README.md           # Chinese documentation
+└── README_en.md        # English documentation
 ```
 
 ## How to Contribute
