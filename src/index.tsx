@@ -34,7 +34,8 @@
  * 2. 工具模块在 Platform.OS === 'harmony' 分支显式取用 TurboModule
  *    'RNSVGAManager'（specs/v1/NativeSvga.ts），不沿用
  *    NativeModules.SvgaMoudle || NativeModules.RNSVGAManager 含糊 fallback 链
- *    （Android 端实际模块名 RCTSvgaMoudle 与取用链不一致，本就存在取空隐患）；
+ *    （Android 端实际模块名 RCTSvgaMoudle，原库该链取空；此处链尾追加
+ *    RCTSvgaMoudle，Android 上 isCached/advanceDownload 才真实可达）；
  * 3. 事件通道对齐 iOS 形态：onFinished/onFrame/onPercentage 三个独立事件
  *    （Android 为单一 topChange + action 分发，鸿蒙不采用）。
  */
@@ -53,7 +54,12 @@ const NativeSVGAView = SVGAViewNativeComponent as unknown as React.ComponentType
   Record<string, unknown>
 >;
 
-const _Module = NativeModules.SvgaMoudle || NativeModules.RNSVGAManager;
+// Android 端原生模块注册名是 RCTSvgaMoudle（见 RCTSVGAModule.kt getName()），
+// 原库 fallback 链两名皆不匹配会取空；链尾追加真实注册名兜底。
+const _Module =
+  NativeModules.SvgaMoudle ||
+  NativeModules.RNSVGAManager ||
+  NativeModules.RCTSvgaMoudle;
 
 export interface ISvgaProps {
   onFinished?: () => void;

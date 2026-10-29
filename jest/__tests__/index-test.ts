@@ -27,7 +27,7 @@
  *
  * Mock 策略：
  * - react-native：Platform.OS 用可变对象控制分支；NativeModules 提供
- *   SvgaMoudle / RNSVGAManager 两条 fallback 链；
+ *   SvgaMoudle / RNSVGAManager / RCTSvgaMoudle 三条 fallback 链；
  * - resolveAssetSource：控制 getAssets 的返回形态；
  * - specs/v1/NativeSvga 与 SVGAViewNativeComponent：codegen spec 直接替换
  *   为桩（spec 自身的接线在 jest/__tests__/ 下单独验证）。
@@ -48,9 +48,11 @@ const mockSvgaMoudleModule = {
 const mockNativeModules: {
   SvgaMoudle?: unknown;
   RNSVGAManager?: unknown;
+  RCTSvgaMoudle?: unknown;
 } = {
   SvgaMoudle: undefined,
   RNSVGAManager: mockLegacyModule,
+  RCTSvgaMoudle: undefined,
 };
 const mockResolveAssetSource = jest.fn();
 const mockNativeSvga = {
@@ -100,6 +102,7 @@ beforeEach(() => {
   mockPlatform.OS = 'harmony';
   mockNativeModules.SvgaMoudle = undefined;
   mockNativeModules.RNSVGAManager = mockLegacyModule;
+  mockNativeModules.RCTSvgaMoudle = undefined;
   lib = loadLibrary();
 });
 
@@ -150,6 +153,24 @@ describe('SVGAModule.isCached', () => {
 
     await expect(fresh.SVGAModule.isCached('http://x/a.svga')).resolves.toBe(
       true,
+    );
+    expect(mockSvgaMoudleModule.isCached).toHaveBeenCalledWith(
+      'http://x/a.svga',
+    );
+    expect(mockLegacyModule.isCached).not.toHaveBeenCalled();
+  });
+
+  it('falls back to NativeModules.RCTSvgaMoudle (Android 真实注册名) when the first two are absent', async () => {
+    mockPlatform.OS = 'android';
+    mockNativeModules.SvgaMoudle = undefined;
+    mockNativeModules.RNSVGAManager = undefined;
+    (mockNativeModules as { RCTSvgaMoudle?: unknown }).RCTSvgaMoudle =
+      mockSvgaMoudleModule;
+    mockSvgaMoudleModule.isCached.mockResolvedValue(false);
+    const fresh = loadLibrary();
+
+    await expect(fresh.SVGAModule.isCached('http://x/a.svga')).resolves.toBe(
+      false,
     );
     expect(mockSvgaMoudleModule.isCached).toHaveBeenCalledWith(
       'http://x/a.svga',

@@ -33,7 +33,8 @@
  * - SpriteEntity{ 1: imageKey, 2: repeated FrameEntity }
  * - FrameEntity{ 1: alpha(f32), 2: Transform layout, 3: Transform transform }
  * - Transform{ 1: a, 2: b, 3: c, 4: d, 5: tx, 6: ty }（f32）
- * 其中 layout 的 c/d 存放位图宽高（与 PNG 原始尺寸一致）。
+ * 其中 layout 的 c/d 存放位图在设计坐标中的目标宽高（1x 导出时恰等于 PNG
+ * 原始尺寸；@2x/@3x 资源位图像素更大，渲染时须按 位图/layout 归一化）。
  */
 
 import { image } from '@kit.ImageKit';

@@ -39,6 +39,7 @@
  */
 
 import { displaySync } from '@kit.ArkGraphics2D';
+import { image } from '@kit.ImageKit';
 import { SvgaMovie } from './SvgaTypes';
 
 export interface SvgaPlayerCallbacks {
@@ -296,17 +297,41 @@ export class SvgaPlayer {
         continue;
       }
       const t = f.transform;
+      // 位图像素尺寸（px）。绘制必须显式指定目标宽高：3 参 drawImage 按位图
+      // “固有尺寸”落点，ArkUI 会掺入像素密度换算，位图实际画幅会随设备密度
+      // 缩水（如 3x 屏缩到 1/3），图层全部塌向各自变换锚点——旋转的脸/翅膀
+      // 表现为乱飞、整体偏小。显式 dw/dh 与画布坐标同为 CSS px，杜绝歧义。
+      let bmpW: number = 0;
+      let bmpH: number = 0;
+      try {
+        const info: image.ImageInfo = pm.getImageInfoSync();
+        bmpW = info.size.width;
+        bmpH = info.size.height;
+      } catch (e) {
+        // PixelMap 已释放等异常：无尺寸无法正确绘制，跳过该图层
+        continue;
+      }
+      if (bmpW <= 0 || bmpH <= 0) {
+        continue;
+      }
+      // 位图 → layout 归一化（SVGAPlayer-Android frameMatrix.preScale(
+      // layout.width / bmp.width, layout.height / bmp.height)，归一化在最内层）。
+      // 经线格式实测（angel/rose.svga）：layout 的 c/d 是位图在设计坐标中的
+      // 目标宽高，1x 资源恰等于 PNG 原始尺寸（比值 1）；@2x/@3x 资源位图更大，
+      // 归一化后各图层回到设计尺寸。
+      const sx: number = f.layoutWidth > 0 ? f.layoutWidth / bmpW : 1;
+      const sy: number = f.layoutHeight > 0 ? f.layoutHeight / bmpH : 1;
       ctx.save();
       ctx.setTransform(
-        scale * t.a,
-        scale * t.b,
-        scale * t.c,
-        scale * t.d,
+        scale * t.a * sx,
+        scale * t.b * sx,
+        scale * t.c * sy,
+        scale * t.d * sy,
         offsetX + scale * t.tx,
         offsetY + scale * t.ty
       );
       ctx.globalAlpha = Math.max(0, Math.min(1, f.alpha));
-      ctx.drawImage(pm, 0, 0);
+      ctx.drawImage(pm, 0, 0, bmpW, bmpH);
       ctx.restore();
     }
     ctx.setTransform(1, 0, 0, 1, 0, 0);
