@@ -10,7 +10,7 @@ This third-party library has been migrated to Gitcode and is now available for d
 
 | Name | Version(Npm Address) | Release Information | Supported RN Version | Supported Autolink | Compile API Version | Community Baseline Version | Source code address |
 | ---- | -------------------- | ------------------- | -------------------- | ------------------ | ------------------- | -------------------------- | ------------------- |
-| @react-native-ohos/react-native-svga | [~1.0.0 (in development)](https://www.npmjs.com/package/@react-native-ohos/react-native-svga) | [Gitcode Releases](https://gitcode.com/openharmony-sig/rntpc_react-native-svga/releases) | 0.72.*/0.77.\*/0.82.\*/0.84.\* | Yes | API12+ | 1.0.9 | [master](https://github.com/react-native-oh-library/react-native-svga/tree/master) |
+| @react-native-ohos/react-native-svga | [~1.0.0 (in development)](https://www.npmjs.com/package/@react-native-ohos/react-native-svga) | [Gitcode Releases](https://gitcode.com/openharmony-sig/rntpc_react-native-svga/releases) | 0.72.*/0.77.\*/0.82.\*/0.84.\* | Yes | API12+ | 1.0.10 | [master](https://github.com/react-native-oh-library/react-native-svga/tree/master) |
 
 ## Introduction
 
@@ -22,8 +22,6 @@ Its core functions are:
 - Provide React components and instance methods – Encapsulate the SVGA player as the `SVGAView` component, with ref instance methods for play/pause/stop/clear, frame seeking, and progress seeking.
 - Support cache management – Provide `isCached` for cache queries and `advanceDownload` for batch pre-downloading; after pre-downloading, animations can still be played offline.
 
-> [!NOTE] The SVGA parsing and rendering engine on the HarmonyOS side is self-developed in this library (ArkTS: zlib decompression → protobuf/JSON parsing → PixelMap decoding → Canvas per-frame matrix drawing); there is no need to import the SVGAPlayer native library.
-
 ## Installation
 
 Go to the project directory and execute the following instruction:
@@ -31,14 +29,12 @@ Go to the project directory and execute the following instruction:
 **npm**
 
 ```bash
-npm install react-native-svga@1.0.9
 npm install @react-native-ohos/react-native-svga
 ```
 
 **yarn**
 
 ```bash
-yarn add react-native-svga@1.0.9
 yarn add @react-native-ohos/react-native-svga
 ```
 

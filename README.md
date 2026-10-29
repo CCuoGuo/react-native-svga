@@ -10,7 +10,7 @@
 
 | 三方库名称 | 三方库版本（npm地址） | 发布信息 | 支持RN版本 | Autolink | 编译API版本 | 社区基线版本 | 源码地址 |
 | ---------- | --------------------- | -------- | ---------- | -------- | ----------- | ------------ | -------- |
-| @react-native-ohos/react-native-svga | [~1.0.0（开发中）](https://www.npmjs.com/package/@react-native-ohos/react-native-svga) | [GitHub Releases](https://github.com/react-native-oh-library/react-native-svga/releases) | 0.72.*/0.77.\*/0.82.\*/0.84.\* | 是 | API12+ | 1.0.9 | [master](https://github.com/react-native-oh-library/react-native-svga/tree/master) |
+| @react-native-ohos/react-native-svga | [~1.0.0（开发中）](https://www.npmjs.com/package/@react-native-ohos/react-native-svga) | [GitHub Releases](https://github.com/react-native-oh-library/react-native-svga/releases) | 0.72.*/0.77.\*/0.82.\*/0.84.\* | 是 | API12+ | 1.0.10 | [master](https://github.com/react-native-oh-library/react-native-svga/tree/master) |
 
 ## 简介
 
@@ -28,14 +28,12 @@
 **npm**
 
 ```bash
-npm install react-native-svga@1.0.9
 npm install @react-native-ohos/react-native-svga
 ```
 
 **yarn**
 
 ```bash
-yarn add react-native-svga@1.0.9
 yarn add @react-native-ohos/react-native-svga
 ```
 
