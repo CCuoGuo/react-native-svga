@@ -10,7 +10,7 @@ This third-party library has been migrated to Gitcode and is now available for d
 
 | Name | Version(Npm Address) | Release Information | Supported RN Version | Supported Autolink | Compile API Version | Community Baseline Version | Source code address |
 | ---- | -------------------- | ------------------- | -------------------- | ------------------ | ------------------- | -------------------------- | ------------------- |
-| @react-native-ohos/react-native-svga | [~1.0.0 (in development)](https://www.npmjs.com/package/@react-native-ohos/react-native-svga) | [Gitcode Releases](https://gitcode.com/openharmony-sig/rntpc_react-native-svga/releases) | 0.72.*/0.77.\*/0.82.\*/0.84.\* | Yes | API12+ | 1.0.10 | [master](https://github.com/react-native-oh-library/react-native-svga/tree/master) |
+| @react-native-ohos/react-native-svga | [~1.0.0 (in development)](https://www.npmjs.com/package/@react-native-ohos/react-native-svga) | [GitHub Releases](https://github.com/react-native-oh-library/react-native-svga/releases) | 0.72.*/0.77.\*/0.82.\*/0.84.\* | Yes | API12+ | 1.0.10 | [master](https://github.com/react-native-oh-library/react-native-svga/tree/master) |
 
 ## Introduction
 
@@ -167,7 +167,10 @@ Then build and run the code.
 
 This document is verified based on the following versions:
 
-1. RNOH: 0.77.*; SDK: HarmonyOS 6.0.2 Release SDK; IDE: DevEco Studio 6.0.2 Release; ROM: Mate70Pro;
+1. RNOH: 0.84.2; SDK: HarmonyOS 6.0.1 Release SDK; IDE: DevEco Studio 26.0.0 Beta1; ROM: 6.0.0.120 SP7;
+2. RNOH: 0.82.1; SDK: HarmonyOS 6.0.1 Release SDK; IDE: DevEco Studio 6.0.1 Release; ROM: 6.0.0.120 SP7;
+3. RNOH: 0.77.18; SDK: HarmonyOS 6.0.0 Release SDK; IDE: DevEco Studio 6.0.0.858; ROM: 6.0.0.112;
+4. RNOH: 0.72.96; SDK: HarmonyOS 6.0.0 Release SDK; IDE: DevEco Studio 6.0.0.858; ROM: 6.0.0.112;
 
 ### API requirements
 
@@ -229,6 +232,16 @@ export default App;
   style={{width: 300, height: 300}}
 />
 ```
+
+**Local Packaged Asset Chain (rawfile)**
+
+The complete chain of `getAssets(require(...))` local packaged assets on OpenHarmony:
+
+1. The svga file is placed with the JS project (e.g. `assets/svga/angel.svga`) and resolved by `SVGAModule.getAssets(require('./assets/svga/angel.svga'))` (see the utility methods above);
+2. When building the bundle, the metro asset pipeline copies the file into `entry/src/main/resources/rawfile/assets/` of the HarmonyOS project (the RNOH `getAssetsDest()` convention; in dev mode the file is not copied — it is read over http via the metro server + hdc rport proxy);
+3. In bundle mode `getAssets` returns a URI starting with `asset://` (the path is relative to `rawfile/assets/`); the native side strips the `asset://` scheme and reads it via the rawfile candidate chain (including the `assets/` prefix) (`resourceManager.getRawFileContent`).
+
+> [!TIP] You can also skip require and reference rawfile directly: put the svga file into `entry/src/main/resources/rawfile/` and play it with `source={'resource://RAWFILE/angel.svga'}`; when a bare resource name / relative path is passed (e.g. `'angel.svga'`), the native side tries rawfile (as-is) → rawfile (`assets/` prefix) → sandbox → rawfile (file name) in order.
 
 **Event Listening**
 ```tsx
@@ -402,8 +415,8 @@ The following are the currently supported component properties on HarmonyOS:
 
 ## How to Contribute
 
-If you find any issues while using this package, please submit an [Issue](https://gitcode.com/openharmony-sig/rntpc_react-native-svga/issues). Contributions are also welcome via [PR](https://gitcode.com/openharmony-sig/rntpc_react-native-svga/pulls).
+If you find any issues while using this package, please submit an [Issue](https://github.com/react-native-oh-library/react-native-svga/issues). Contributions are also welcome via [PR](https://github.com/react-native-oh-library/react-native-svga/pulls).
 
 ## License
 
-This project is licensed under [The MIT License (MIT)](https://github.com/Smallworld-P/react-native-svga/blob/master/LICENSE). Please feel free to enjoy and participate in open source.
+This project is licensed under [The MIT License (MIT)](https://github.com/react-native-oh-library/react-native-svga/blob/master/LICENSE). Please feel free to enjoy and participate in open source.

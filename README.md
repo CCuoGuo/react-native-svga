@@ -231,6 +231,16 @@ export default App;
 />
 ```
 
+**本地打包资源链路（rawfile）**
+
+`getAssets(require(...))` 本地打包资源在鸿蒙端的完整链路：
+
+1. svga 文件随 JS 工程放置（如 `assets/svga/angel.svga`），由 `SVGAModule.getAssets(require('./assets/svga/angel.svga'))` 解析（见上方工具方法）；
+2. bundle 打包时，metro 资源管线将文件拷贝至鸿蒙工程 `entry/src/main/resources/rawfile/assets/` 目录下（RNOH `getAssetsDest()` 约定；dev 模式不落盘，经 metro server + hdc rport 代理按 http 地址读取）；
+3. bundle 模式下 `getAssets` 返回 `asset://` 开头的 URI（路径相对 `rawfile/assets/`），原生剥掉 `asset://` scheme 后按 rawfile 候选链（含 `assets/` 前缀）读取（`resourceManager.getRawFileContent`）。
+
+> [!TIP] 也可以不走 require，直接引用 rawfile：手动将 svga 放入 `entry/src/main/resources/rawfile/` 后用 `source={'resource://RAWFILE/angel.svga'}` 播放；传裸资源名/相对路径（如 `'angel.svga'`）时，原生按 rawfile（原样）→ rawfile（`assets/` 前缀）→ 沙箱 → rawfile（文件名）依次尝试。
+
 **事件监听**
 ```tsx
 <SVGAView
@@ -399,8 +409,8 @@ SVGAModule.advanceDownload(['https://example.com/gift1.svga', 'https://example.c
 
 ## 贡献代码
 
-使用过程中发现任何问题都可以提交 [Issue](https://gitcode.com/openharmony-sig/rntpc_react-native-svga/issues)，当然，也非常欢迎提交 [PR](https://gitcode.com/openharmony-sig/rntpc_react-native-svga/pulls) 。
+使用过程中发现任何问题都可以提交 [Issue](https://github.com/react-native-oh-library/react-native-svga/issues)，当然，也非常欢迎提交 [PR](https://github.com/react-native-oh-library/react-native-svga/pulls) 。
 
 ## 开源协议
 
-本项目基于 [The MIT License (MIT)](https://github.com/Smallworld-P/react-native-svga/blob/master/LICENSE) ，请自由地享受和参与开源。
+本项目基于 [The MIT License (MIT)](https://github.com/react-native-oh-library/react-native-svga/blob/master/LICENSE) ，请自由地享受和参与开源。

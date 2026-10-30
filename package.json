@@ -11,15 +11,15 @@
   "private": false,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Smallworld-P/react-native-svga.git",
-    "baseUrl": "https://github.com/Smallworld-P/react-native-svga"
+    "url": "git+https://github.com/react-native-oh-library/react-native-svga.git",
+    "baseUrl": "https://github.com/react-native-oh-library/react-native-svga"
   },
   "keywords": [
     "react-native",
     "harmony",
     "harmonyos"
   ],
-  "homepage": "https://github.com/Smallworld-P/react-native-svga",
+  "homepage": "https://github.com/react-native-oh-library/react-native-svga",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
